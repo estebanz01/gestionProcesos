@@ -1,0 +1,47 @@
+PRACTICA NUMERO 1 SISTEMAS OPERATIVOS - SEMESTRE 2 / 2012
+	UNIVERSIDAD NACIONAL DE COLOMBIA, SEDE MEDELLIN
+	
+	DESARROLLADOR:
+		Esteban Zapata Rojas - estebanz01@outlook.com http://about.me/estebanz01
+
+	INTEGRANTES:
+		* Mauricio Alonso Mejia Castro
+		* Yonatan Alberto Lopez Sierra
+		* Esteban Zapata Rojas
+
+	DESCRIPCION:
+		El siguiente programa, desarrollado en lenguaje C++, muestra la hora cada
+		cierto intervalo de tiempo.Utiliza la creación de procesos mediante
+		LLAMADAS AL SISTEMA, utilizando las funciones fork(), signal(), waitpid() y exit()
+
+	FUNCIONES:
+		void cerrar(int sig):
+			Se activa cuando se presiona el comando CTRL + C. Cambia el valor de
+			la variable global estado a FALSE, terminando el ciclo infinito que
+			permite mostrar la hora en pantalla.
+	
+	FORMA DE COMPILACION:
+		En consola ejecutar:
+			g++ -o ./nombreBinario /rutaArchivo/practica.cpp
+
+	EJEMPLO:
+		En consola ejecutar:
+			* sistemas@ubuntu:~$ g++ -o ./practica /home/sistemas/Escritorio/practica.cpp
+
+	FORMA DE USO:
+		En consola ejecutar:
+			1) ./practica
+			2) ./practica segundos
+		donde segundos es el tiempo de espera para mostrar la hora.
+
+	EJEMPLO:
+		En consola:
+			* sistemas@ubuntu:~$ ./practica
+			* sistemas@ubuntu:~$ ./practica 3 (Cada 3 segundos mostrará la hora)
+			* sistemas@ubuntu:~$ ./practica 30 (Cada 30 segundos mostrará la hora)
+
+	FECHA: 02/10/2012
+
+	LICENCIA:
+		Esta aplicacion se distribuye bajo licencia MIT
+		http://opensource.org/licenses/mit-license.php
