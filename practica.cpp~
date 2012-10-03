@@ -1,0 +1,125 @@
+/*
+	PRACTICA NUMERO 1 SISTEMAS OPERATIVOS - SEMESTRE 2 / 2012
+	UNIVERSIDAD NACIONAL DE COLOMBIA, SEDE MEDELLIN
+	
+	INTEGRANTES:
+		* Mauricio Alonso Mejia Castro
+		* Yonatan Alberto Lopez Sierra
+		* Esteban Zapata Rojas
+
+	DESCRIPCION:
+		El siguiente programa, desarrollado en lenguaje C++, muestra la hora cada
+		cierto intervalo de tiempo.Utiliza la creación de procesos mediante
+		LLAMADAS AL SISTEMA, utilizando las funciones fork(), signal(), waitpid() y exit()
+
+	FUNCIONES:
+		void cerrar(int sig):
+			Se activa cuando se presiona el comando CTRL + C. Cambia el valor de
+			la variable global estado a FALSE, terminando el ciclo infinito que
+			permite mostrar la hora en pantalla.
+	
+	FORMA DE COMPILACION:
+		En consola ejecutar:
+			g++ -o ./nombreBinario /rutaArchivo/practica.cpp
+
+	EJEMPLO:
+		En consola ejecutar:
+			* sistemas@ubuntu:~$ g++ -o ./practica /home/sistemas/Escritorio/practica.cpp
+
+	FORMA DE USO:
+		En consola ejecutar:
+			1) ./practica
+			2) ./practica segundos
+		donde segundos es el tiempo de espera para mostrar la hora.
+
+	EJEMPLO:
+		En consola:
+			* sistemas@ubuntu:~$ ./practica
+			* sistemas@ubuntu:~$ ./practica 3 (Cada 3 segundos mostrará la hora)
+			* sistemas@ubuntu:~$ ./practica 30 (Cada 30 segundos mostrará la hora)
+
+	FECHA: 02/10/2012
+
+*/
+
+#include <iostream>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+using namespace std;
+
+bool estado = true; //Variable global que controla el ciclo que muestra la hora
+
+void cerrar(int sig){
+	pid_t pidProcess;
+	int status;
+	if((pidProcess = fork()) == 0){ //Capturamos el PID del proceso creado. (Proceso Hijo)
+		estado = false;	//Termina el ciclo.
+	}
+	else{
+		waitpid(pidProcess, &status, 0); //Como proceso padre, espera a que el hijo termine.
+		cout << endl << " ========= Hasta luego! ========= " << endl;
+		exit(0); //Sale del proceso
+	}
+}
+
+int main(int argc, char* argv[]){
+	signal(SIGINT, &cerrar); //Funcion signal que captura el comando CTRL + C y lo envia a cerrar.
+	cout << endl << " ========= Programa que informa la hora cada cierto tiempo ========= " << endl;
+	cout << endl;
+	pid_t pidHijo, pidNieto; //Estructuras pid_t de los procesos a crear
+	int statusHijo, statusNieto; //Estatus de los procesos a crear.
+	if(argv[1] == NULL){	//Si no se pasó ningún argumento al programa, ejecuta cada 5 segundos.
+		//Crea el proceso hijo
+		if((pidHijo = fork()) == 0){
+			while(estado){
+				//Crea el proceso nieto
+				if((pidNieto = fork()) == 0){
+					//Espera 5 segundos y muestra la hora
+					sleep(5);
+					execlp("date", "date", NULL, NULL, NULL, (char*) 0);
+					cout << "Ocurrio un problema con el nieto!!!!" << endl;
+					exit(1);
+				}
+				else{
+					cout << "Ingresamos al Proceso hijo\nLa hora es:" << endl;
+					//waitpid obliga al proceso padre a esperar que termine el hijo
+					waitpid(pidNieto, &statusNieto, 0);
+				}
+			}
+		}
+		else{
+			cout << "Ingresamos al Proceso padre" << endl;
+			waitpid(pidHijo, &statusHijo, 0);
+		}
+	}
+	else{
+	//En caso de que se haya especificado un parámetro de tiempo, lo utiliza
+		if((pidHijo = fork()) == 0){
+			while(estado){
+				if((pidNieto = fork()) == 0){
+					/* La función atoi hace un cast implícito de valores de tipo
+					   char y char* a int. 
+					   argv[1] corresponde al parámetro asignado al momento de
+					   ejecutar el programa */
+					sleep(atoi(argv[1]));
+					execlp("date", "date", NULL, NULL, NULL, (char*) 0);
+					cout << "Ocurrio un problema con el nieto!!!!" << endl;
+					exit(1);
+				}
+				else{
+					cout << "Ingresamos al Proceso hijo\nLa hora es:" << endl;
+					waitpid(pidNieto, &statusNieto, 0);
+				}
+			}
+		}
+		else{
+			cout << "Ingresamos al Proceso padre" << endl;
+			waitpid(pidHijo, &statusHijo, 0);
+		}
+	}
+	return 0;
+}
